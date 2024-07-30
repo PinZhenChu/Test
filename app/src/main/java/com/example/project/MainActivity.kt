@@ -1,6 +1,7 @@
 package com.example.project
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,14 +15,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.project.ui.theme.ProjectTheme
+import io.realm.kotlin.mongodb.App
+import io.realm.kotlin.mongodb.Credentials
+import kotlinx.coroutines.runBlocking
 
 val ThemeColor = Color(213, 191, 160)//0xFFD5BFA0
 val LightColor = ThemeColor.copy(alpha = 0.2f) //原0xFFE9E8E5
 
-
 class MainActivity : ComponentActivity() {
+    private lateinit var app: App
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        app = App.create("application-0-fbwwmjb")
+        runBlocking {
+            val credentials = Credentials.anonymous(true)
+            val user = app.login(credentials)
+
+            Log.i("TAG", "onCreate: user logged in successfully uid = ${user.id}")
+        }
         setContent {
             ProjectTheme {
                 Surface(
