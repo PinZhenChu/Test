@@ -51,22 +51,37 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.project.ui.theme.ProjectTheme
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
 
 @Composable
-fun MonthScreen(navController: NavController) {
+fun MonthScreen(
+    navController: NavController,
+//    formattedMonth: String,
+    selectedMonth: String,
+    allConversationData: List<String>
+) {
     var showContent by remember { mutableStateOf(true) }
     var isMonthSelected by remember { mutableStateOf(true) }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    val daysWithData = setOf(1, 7, 11, 18, 22, 23, 25, 30, 31)
+
+    val year = selectedMonth.split(".")[0].toInt()
+    val month = selectedMonth.split(".")[1].toInt()
+
+    // 取得被选取的 year 和 month 的所有数据的日期
+    val daysWithData = allConversationData
+        .filter { it.startsWith("$year.${month.toString().padStart(2, '0')}") }
+        .map { it.split(".")[2].toInt() }
+        .toSet()
 
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Header(navController)
+            Header(navController, selectedMonth = selectedMonth)
             ToggleButton(isMonthSelected, onToggle = {
                 isMonthSelected = it
                 showContent = it
@@ -79,17 +94,14 @@ fun MonthScreen(navController: NavController) {
                     item { WordSections() }
                     item { Statistics() }
                     item { Spacer(modifier = Modifier.height(16.dp)) }
-                    item { MoodChart() }
-                    item { Spacer(modifier = Modifier.height(32.dp)) }
-                    item { WordCloud() }
                 }
             } else {
-                Column (modifier = Modifier.padding(horizontal = 20.dp)){
+                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Spacer(modifier = Modifier.height(40.dp))
 
                     CalendarView(
-                        year = 2024,
-                        month = 5,
+                        year = year,
+                        month = month,
                         daysWithData = daysWithData,
                         onDateSelected = { selectedDate = it }
                     )
@@ -101,8 +113,15 @@ fun MonthScreen(navController: NavController) {
     }
 }
 
+
 @Composable
-fun Header(navController: NavController) {
+fun Header(navController: NavController, selectedMonth: String) {
+    // Parse the year and month from the selectedMonth string
+    val (year, month) = selectedMonth.split(".").map { it.toInt() }
+
+    // Format the month name for display
+    val monthName = LocalDate.of(year, month, 1).format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,12 +141,14 @@ fun Header(navController: NavController) {
                     Modifier.size(35.dp)
                 )
             }
+
             Text(
-                text = "2024 May",
+                text = monthName,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.W400,
                 color = Color.Black,
             )
+
             IconButton(onClick = { navController.navigate("search") }) {
                 Icon(
                     Icons.Default.Search,
@@ -138,6 +159,8 @@ fun Header(navController: NavController) {
         }
     }
 }
+
+
 
 @Composable
 fun ToggleButton(isMonthSelected: Boolean, onToggle: (Boolean) -> Unit) {
@@ -255,163 +278,175 @@ fun Statistics() {
     }
 }
 
-@Composable
-fun MoodChart() {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 30.dp, vertical = 10.dp)
-            .border(1.dp, Color.Black)
-    ) {
-        // 設置數據點
-        val dataPoints = listOf(
-            PointF(0f, 2f),
-            PointF(0.5f, 4f),
-            PointF(1f, 3f),
-            PointF(1.5f, 8f),
-            PointF(2f, 5f),
-            PointF(2.5f, 7f),
-            PointF(3f, 7f),
-            PointF(3.57f, 4f),
-            PointF(4f, 4f)
-        )
-
-        // 繪製折線圖
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(Color.LightGray)
-        ) {
-            val path = Path().apply {
-                moveTo(
-                    dataPoints[0].x * size.width / 4,
-                    size.height - dataPoints[0].y * size.height / 10
-                )
-                dataPoints.forEach { point ->
-                    lineTo(point.x * size.width / 4, size.height - point.y * size.height / 10)
-                }
-            }
-
-            // 繪製折線
-            drawPath(
-                path = path,
-                color = Color.Blue,
-                style = Stroke(width = 4f)
-            )
-
-            // 繪製X軸和Y軸
-            drawLine(
-                color = Color.Black,
-                start = Offset(0f, size.height),
-                end = Offset(size.width, size.height),
-                strokeWidth = 4f
-            )
-            drawLine(
-                color = Color.Black,
-                start = Offset(0f, 0f),
-                end = Offset(0f, size.height),
-                strokeWidth = 4f
-            )
-
-            // 繪製X軸標籤
-            val xAxisPaint = Paint().apply {
-                color = android.graphics.Color.BLACK
-                textSize = 40f
-            }
-            for (i in 0..4) {
-                drawContext.canvas.nativeCanvas.drawText(
-                    "$i", i * size.width / 4, size.height + 40, xAxisPaint
-                )
-            }
-
-            // 繪製Y軸標籤
-            val yAxisPaint = Paint().apply {
-                color = android.graphics.Color.BLACK
-                textSize = 40f
-            }
-            for (i in 0..5) {
-                drawContext.canvas.nativeCanvas.drawText(
-                    "${i * 2}", -40f, size.height - i * size.height / 5, yAxisPaint
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun WordCloud() {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 30.dp, vertical = 10.dp)
+//@Composable
+//fun MoodChart() {
+//    Box(
+//        modifier = Modifier
+//            .padding(horizontal = 30.dp, vertical = 10.dp)
 //            .border(1.dp, Color.Black)
-    ) {
-        // 示例词汇及其权重
-        val words = listOf(
-            "Kotlin" to 10,
-            "Compose" to 8,
-            "Android" to 4,
-            "Jetpack" to 2,
-            "UI" to 5,
-            "Development" to 4,
-            "OpenAI" to 5,
-            "AI" to 3
-        )
-
-        // 随机位置生成
-        fun randomPosition(maxWidth: Float, maxHeight: Float): Pair<Float, Float> {
-            val x = Random.nextFloat() * maxWidth
-            val y = Random.nextFloat() * maxHeight
-            return Pair(x, y)
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                // 获取 Canvas 的尺寸
-                val canvasWidth = size.width - 70.dp.toPx()
-                val canvasHeight = size.height - 70.dp.toPx()
-
-                // 绘制单词
-                for ((word, weight) in words) {
-                    val paint = Paint().apply {
-                        color = android.graphics.Color.rgb(
-                            (0..255).random(),
-                            (0..255).random(),
-                            (0..255).random()
-                        )
-                        textSize = weight * 10f
-                    }
-
-                    // 随机位置
-                    val (x, y) = randomPosition(canvasWidth, canvasHeight)
-
-                    drawContext.canvas.nativeCanvas.drawText(
-                        word,
-                        x,
-                        y,
-                        paint
-                    )
-                }
-            }
-        }
-    }
-}
+//    ) {
+//        // 設置數據點
+//        val dataPoints = listOf(
+//            PointF(0f, 2f),
+//            PointF(0.5f, 4f),
+//            PointF(1f, 3f),
+//            PointF(1.5f, 8f),
+//            PointF(2f, 5f),
+//            PointF(2.5f, 7f),
+//            PointF(3f, 7f),
+//            PointF(3.57f, 4f),
+//            PointF(4f, 4f)
+//        )
+//
+//        // 繪製折線圖
+//        Canvas(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .background(Color.LightGray)
+//        ) {
+//            val path = Path().apply {
+//                moveTo(
+//                    dataPoints[0].x * size.width / 4,
+//                    size.height - dataPoints[0].y * size.height / 10
+//                )
+//                dataPoints.forEach { point ->
+//                    lineTo(point.x * size.width / 4, size.height - point.y * size.height / 10)
+//                }
+//            }
+//
+//            // 繪製折線
+//            drawPath(
+//                path = path,
+//                color = Color.Blue,
+//                style = Stroke(width = 4f)
+//            )
+//
+//            // 繪製X軸和Y軸
+//            drawLine(
+//                color = Color.Black,
+//                start = Offset(0f, size.height),
+//                end = Offset(size.width, size.height),
+//                strokeWidth = 4f
+//            )
+//            drawLine(
+//                color = Color.Black,
+//                start = Offset(0f, 0f),
+//                end = Offset(0f, size.height),
+//                strokeWidth = 4f
+//            )
+//
+//            // 繪製X軸標籤
+//            val xAxisPaint = Paint().apply {
+//                color = android.graphics.Color.BLACK
+//                textSize = 40f
+//            }
+//            for (i in 0..4) {
+//                drawContext.canvas.nativeCanvas.drawText(
+//                    "$i", i * size.width / 4, size.height + 40, xAxisPaint
+//                )
+//            }
+//
+//            // 繪製Y軸標籤
+//            val yAxisPaint = Paint().apply {
+//                color = android.graphics.Color.BLACK
+//                textSize = 40f
+//            }
+//            for (i in 0..5) {
+//                drawContext.canvas.nativeCanvas.drawText(
+//                    "${i * 2}", -40f, size.height - i * size.height / 5, yAxisPaint
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun WordCloud() {
+//    Box(
+//        modifier = Modifier
+//            .padding(horizontal = 30.dp, vertical = 10.dp)
+////            .border(1.dp, Color.Black)
+//    ) {
+//        // 示例词汇及其权重
+//        val words = listOf(
+//            "Kotlin" to 10,
+//            "Compose" to 8,
+//            "Android" to 4,
+//            "Jetpack" to 2,
+//            "UI" to 5,
+//            "Development" to 4,
+//            "OpenAI" to 5,
+//            "AI" to 3
+//        )
+//
+//        // 随机位置生成
+//        fun randomPosition(maxWidth: Float, maxHeight: Float): Pair<Float, Float> {
+//            val x = Random.nextFloat() * maxWidth
+//            val y = Random.nextFloat() * maxHeight
+//            return Pair(x, y)
+//        }
+//
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .background(Color.LightGray),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Canvas(modifier = Modifier.fillMaxSize()) {
+//                // 获取 Canvas 的尺寸
+//                val canvasWidth = size.width - 70.dp.toPx()
+//                val canvasHeight = size.height - 70.dp.toPx()
+//
+//                // 绘制单词
+//                for ((word, weight) in words) {
+//                    val paint = Paint().apply {
+//                        color = android.graphics.Color.rgb(
+//                            (0..255).random(),
+//                            (0..255).random(),
+//                            (0..255).random()
+//                        )
+//                        textSize = weight * 10f
+//                    }
+//
+//                    // 随机位置
+//                    val (x, y) = randomPosition(canvasWidth, canvasHeight)
+//
+//                    drawContext.canvas.nativeCanvas.drawText(
+//                        word,
+//                        x,
+//                        y,
+//                        paint
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable
 fun MonthScreenPreview() {
     val navController = rememberNavController()
+    val formattedMonth = "2024年08月" // 示例数据
+    val selectedMonth = "2024.08"
+    val allConversationData = listOf(
+        "2024.08.01", "2024.08.15", "2024.08.30"
+    ) // 示例数据
+
     ProjectTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            MonthScreen(navController = rememberNavController())
+            MonthScreen(
+                navController = navController,
+//                formattedMonth = formattedMonth,
+                selectedMonth = selectedMonth,
+                allConversationData = allConversationData
+            )
         }
     }
 }
+

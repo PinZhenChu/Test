@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarView(
@@ -120,17 +121,22 @@ fun CalendarView(
 @Composable
 fun DataPreview(navController: NavController, date: LocalDate) {
     Card(
-        modifier = Modifier.fillMaxWidth()
-            .clickable(onClick = { navController.navigate("Record") }),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = {
+                // Use the formatted date for navigation
+                val formattedDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                navController.navigate("Record/$formattedDate")
+            }),
         colors = CardDefaults.cardColors(LightColor),
         shape = RoundedCornerShape(8.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Date: ${date.toString()}")
+            Text(text = "Date: ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}")
             Text(text = "Data for this date: Example data for ${date.dayOfMonth}.")
-
         }
     }
 }
+
 
 

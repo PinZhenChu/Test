@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package com.example.project
 
 import androidx.compose.foundation.background
@@ -27,29 +29,36 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.project.ui.theme.ProjectTheme
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+
 
 @Composable
-fun MonthSelectionScreen(navController: NavController) {
-    val months = listOf(
-        "2024年 5月" to "12次對話",
-        "2024年 4月" to "19次對話",
-        "2024年 3月" to "15次對話",
-        "2024年 2月" to "10次對話",
-        "2024年 1月" to "2次對話",
-        "2023年 12月" to "5次對話",
-        "2023年 11月" to "13次對話",
-        "2023年 10月" to "10次對話",
-        "2023年 9月" to "12次對話",
-        "2023年 8月" to "9次對話",
-        "2023年 7月" to "7次對話",
-        "2023年 6月" to "1次對話",
-        "2023年 4月" to "10次對話",
-        "2023年 2月" to "12次對話",
-        "2022年 12月" to "9次對話",
-        "2022年 7月" to "7次對話",
-        "2022年 6月" to "1次對話"
-    )
-    var selectedMonth by remember { mutableStateOf("") }
+fun MonthSelectionScreen(navController: NavController,allConversationData : List<String>) {
+
+
+    val currentDate = LocalDateTime.now()
+    val currentMonth = "${currentDate.year}.${currentDate.monthValue.toString().padStart(2, '0')}"
+
+    var selectedMonth by remember { mutableStateOf(currentMonth) }
+
+    // 计算每个月的对话次数
+    val conversationCountByMonth = allConversationData
+        .map { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyy.MM.dd.HH:mm:ss")) }
+        .groupBy { it.format(DateTimeFormatter.ofPattern("yyyy.MM")) }
+        .mapValues { it.value.size }
+
+    val monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
+    val originalFormatter = DateTimeFormatter.ofPattern("yyyy.MM")
+    val formattedMonth = try {
+        val localDate = LocalDate.parse(selectedMonth, originalFormatter)
+        localDate.format(monthFormatter)
+    } catch (e: Exception) {
+        "Invalid Date"
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,18 +70,41 @@ fun MonthSelectionScreen(navController: NavController) {
             fontSize = 18.sp,
             modifier = Modifier.padding(16.dp)
         )
+
         LazyColumn {
-            items(months) { (month, conversations) ->
+            items(conversationCountByMonth.toList()) { (month, conversationCount) ->
+                val formattedMonth = LocalDateTime.parse("$month.01.00:00:00", DateTimeFormatter.ofPattern("yyyy.MM.dd.HH:mm:ss"))
+                    .format(DateTimeFormatter.ofPattern("yyyy年 M月"))
+
                 MonthItem(
-                    month = month,
-                    conversations = conversations,
+                    month = formattedMonth,
+                    conversations = "$conversationCount 次對話",
                     isSelected = selectedMonth == month,
-                    onClick = { selectedMonth = month }
+                    onClick = {
+                        selectedMonth = month
+                        navController.navigate("month/$selectedMonth")
+                    }
                 )
             }
         }
     }
 }
+
+//@Composable
+//fun Newtest(selectedMonth: String) {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Text(
+//            text = selectedMonth,
+//            fontSize = 18.sp,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//    }
+//}
 
 @Composable
 fun MonthItem(
@@ -89,7 +121,6 @@ fun MonthItem(
             .padding(vertical = 6.dp, horizontal = 16.dp)
             .background(backgroundColor, RoundedCornerShape(10.dp))
             .clickable { onClick() }
-//            .border(BorderStroke(0.05.dp, Color.Black),RoundedCornerShape(10.dp))
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -104,6 +135,8 @@ fun MonthItem(
 fun MonthSelectionScreenPreview() {
     val navController = rememberNavController()
     ProjectTheme {
-        MonthSelectionScreen(navController)
+        Column {
+            MonthSelectionScreen(navController,allConversationData = allConversationData)
+        }
     }
 }

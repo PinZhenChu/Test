@@ -1,15 +1,7 @@
 package com.example.project
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,23 +11,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.project.ui.theme.ProjectTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun RecordScreen(navController: NavController) {
+fun RecordScreen(navController: NavController, date: LocalDate?) {
+    // Debugging output
+    println("Received date: ${date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(ThemeColor)
             .padding(16.dp)
     ) {
-        HeaderSection()
+        HeaderSection(date)
         ContentSection()
         EmotionChart()
         ConversationSection()
@@ -43,36 +39,21 @@ fun RecordScreen(navController: NavController) {
 }
 
 @Composable
-fun HeaderSection() {
-    Row (modifier = Modifier
-        .padding(bottom = 8.dp, end = 10.dp)
-        .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ){
-//        Text(
-//            text = "5/29",
-//            fontSize = 20.sp,
-//            modifier = Modifier
-//                .background((Color.White), RoundedCornerShape(10.dp))
-//                .padding(4.dp)
-//        )
+fun HeaderSection(date: LocalDate?) {
+    Row(
+        modifier = Modifier
+            .padding(bottom = 8.dp, end = 10.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        val formattedDate = date?.format(DateTimeFormatter.ofPattern("MMMM dd yyyy")) ?: "No Date"
         Text(
-            text = "對話紀錄",
-            style = MaterialTheme.typography.headlineSmall,
-            fontSize = 24.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(bottom = 8.dp)
-        )
-        Text(
-            text = "5/29",
+            text = formattedDate,
             fontSize = 20.sp,
-            modifier = Modifier
-                .background((Color.White), RoundedCornerShape(10.dp))
-                .padding(4.dp)
+            color = Color.White,
+            modifier = Modifier.padding(4.dp)
         )
     }
-
 }
 
 @Composable
@@ -83,10 +64,12 @@ fun ContentSection() {
             .background(Color.White, RoundedCornerShape(8.dp))
             .padding(16.dp)
     ) {
-        Text("內容概述",
+        Text(
+            text = "內容概述",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            fontSize = 20.sp)
+            fontSize = 20.sp
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "今天OO跟我分享了他家的貓咪小花最近的行為變化。他提到小花最近特別愛搞亂，總是在他的床上亂挖，每天早上都得整理一遍。他還提到小花變得更親人，總是黏著他。我建議他給小花準備一個專屬的小床，看她會不會喜歡。小花也確實很喜歡小明，常常在他身邊撒嬌。",
@@ -105,10 +88,12 @@ fun EmotionChart() {
             .background(Color.White, RoundedCornerShape(8.dp))
             .padding(16.dp)
     ) {
-        Text("情緒變化",
+        Text(
+            text = "情緒變化",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            fontSize = 20.sp)
+            fontSize = 20.sp
+        )
         Spacer(modifier = Modifier.height(8.dp))
         // 這裡可以放置一個圖表，這裡簡單用一個Box表示
         Box(
@@ -175,7 +160,10 @@ fun RecordScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            RecordScreen(navController = rememberNavController())
+            RecordScreen(
+                navController = navController,
+                date = LocalDate.of(2024, 8, 17) // Example date
+            )
         }
     }
 }
