@@ -26,16 +26,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.project.ui.theme.ProjectTheme
 import kotlinx.coroutines.launch
 
-// DrawerContent Composable
+// menu
 @Composable
 fun DrawerContent() {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    // Icons to mimic drawer destinations
-    val items = listOf(Icons.Default.Notifications, Icons.Default.Face, Icons.Default.Email)
-    val names = listOf("通知", "頭貼", "")
-    val selectedItem = remember { mutableStateOf(items[0]) }
 
     Column(
         modifier = Modifier
@@ -43,8 +36,14 @@ fun DrawerContent() {
             .width(200.dp)
             .padding(top = 16.dp)
     ) {
-        Spacer(Modifier.height(50.dp))
+        val drawerState = rememberDrawerState(DrawerValue.Closed)
+        val scope = rememberCoroutineScope()
+        // icons to mimic drawer destinations
+        val items = listOf(Icons.Default.Notifications, Icons.Default.Face, Icons.Default.Email)
 
+        val names = listOf("通知", "頭貼", "")
+        val selectedItem = remember { mutableStateOf(items[0]) }
+        Spacer(Modifier.height(50.dp))
         items.zip(names).forEach { (item, name) ->
             NavigationDrawerItem(
                 icon = { Icon(item, contentDescription = null) },
@@ -67,7 +66,9 @@ fun DrawerContent() {
     }
 }
 
-// Home Composable
+
+// home
+//@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Home(navController: NavController, selectedMonth: String) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -75,11 +76,16 @@ fun Home(navController: NavController, selectedMonth: String) {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { DrawerContent() },
+        drawerContent = {
+            DrawerContent()
+        },
         content = {
             Column(
-                modifier = Modifier
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
                     .fillMaxSize()
+//                    .padding(16.dp)
                     .background(color = Color(android.graphics.Color.parseColor("#f2f1f6"))),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -89,15 +95,20 @@ fun Home(navController: NavController, selectedMonth: String) {
                         .fillMaxWidth()
                 ) {
                     val menu = createRef()
-                    IconButton(
-                        onClick = { scope.launch { drawerState.open() } },
-                        modifier = Modifier.constrainAs(menu) {
-                            start.linkTo(parent.start, margin = 10.dp)
-                            top.linkTo(parent.top, margin = 20.dp)
-                        }
-                    ) {
-                        Icon(Icons.Filled.Menu, contentDescription = null, modifier = Modifier.size(36.dp))
+                    IconButton(onClick = { scope.launch { drawerState.open() } },
+                        modifier = Modifier
+                            .constrainAs(menu) {
+                                start.linkTo(parent.start, margin = 10.dp)
+                                top.linkTo(parent.top, margin = 20.dp)
+                            }) {
+                        Icon(Icons.Filled.Menu, contentDescription = null,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .constrainAs(menu) {
+                                })
                     }
+
+
                 }
                 Image(painter = painterResource(id = R.drawable.user), contentDescription = null)
                 Button(
@@ -114,55 +125,76 @@ fun Home(navController: NavController, selectedMonth: String) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
+
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(60.dp)
                 ) {
                     FilledIconButton(
-                        onClick = { navController.navigate("month/$selectedMonth") },
+                        onClick = { navController.navigate("month/$selectedMonth") } ,
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = ThemeColor,
-                            contentColor = Color.White
+                            containerColor = ThemeColor, // 设置按钮的背景颜色
+                            contentColor = Color.White // 设置按钮内容的颜色（图标颜色）
                         ),
-                        modifier = Modifier.size(60.dp)
+                        modifier = Modifier
+                            .size(80.dp)
                     ) {
-                        Icon(
-                            bitmap = ImageBitmap.imageResource(id = R.drawable.diary),
-                            contentDescription = null,
-                            modifier = Modifier.size(36.dp)
-                        )
+                        Column {
+                            Icon(
+                                bitmap = ImageBitmap.imageResource(id = R.drawable.diary),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(36.dp)
+
+                            )
+                            Text(text = "日記")
+                        }
+
                     }
                     FilledIconButton(
                         onClick = { navController.navigate("owningCards") },
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = ThemeColor,
-                            contentColor = Color.White
+                            containerColor = ThemeColor, // 设置按钮的背景颜色
+                            contentColor = Color.White // 设置按钮内容的颜色（图标颜色）
                         ),
-                        modifier = Modifier.size(60.dp)
+                        modifier = Modifier
+                            .size(80.dp)
                     ) {
-                        Icon(
-                            bitmap = ImageBitmap.imageResource(id = R.drawable.imagegallery),
-                            contentDescription = null,
-                            modifier = Modifier.size(36.dp)
-                        )
+                        Column {
+                            Icon(
+                                bitmap = ImageBitmap.imageResource(id = R.drawable.imagegallery),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(36.dp)
+                            )
+                            Text(text = "卡牌")
+                        }
+
+
                     }
                 }
+
+
             }
         }
     )
 }
 
-// HomePreview Composable
+
 @Preview(showBackground = true)
 @Composable
 fun HomePreview() {
     val navController = rememberNavController()
     ProjectTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Home(navController = navController, selectedMonth = "")
-        }
+        Home(navController, selectedMonth = "")
     }
 }
+
+
+
+
+
+
+
+
+

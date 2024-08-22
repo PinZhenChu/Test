@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -73,10 +75,21 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.androidx.navigation.compose)
     implementation (libs.accompanist.insets)
-    //以下是蔡宜樺加的
+
+    // For Jetpack Compose.
+    implementation(libs.compose)
+    // For `compose`. Creates a `ChartStyle` based on an M3 Material Theme.
+    implementation(libs.compose.m3)
+    // Houses the core logic for charts and other elements. Included in all other modules.
+    implementation(libs.core)
+
+    //back-end
     implementation(libs.library.base)
     // If using Device Sync
     implementation (libs.library.sync)
     // If using coroutines with the SDK
     implementation (libs.kotlinx.coroutines.core)
-}
+    }
+
+
+

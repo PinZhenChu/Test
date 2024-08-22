@@ -3,6 +3,8 @@ package com.example.project
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -10,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -17,6 +21,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.project.ui.theme.ProjectTheme
+import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
+import com.patrykandpatrick.vico.compose.chart.Chart
+import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.core.entry.entryModelOf
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -31,7 +40,7 @@ fun RecordScreen(navController: NavController, date: LocalDate?) {
             .background(ThemeColor)
             .padding(16.dp)
     ) {
-        HeaderSection(date)
+        HeaderSection(navController,date)
         ContentSection()
         EmotionChart()
         ConversationSection()
@@ -39,18 +48,27 @@ fun RecordScreen(navController: NavController, date: LocalDate?) {
 }
 
 @Composable
-fun HeaderSection(date: LocalDate?) {
+fun HeaderSection(navController: NavController,date: LocalDate?) {
     Row(
         modifier = Modifier
             .padding(bottom = 8.dp, end = 10.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment =  Alignment.CenterVertically
     ) {
-        val formattedDate = date?.format(DateTimeFormatter.ofPattern("MMMM dd yyyy")) ?: "No Date"
+        IconButton(onClick = { navController.navigateUp() }) {
+            Icon(
+                bitmap = ImageBitmap.imageResource(id = R.drawable.back),
+                contentDescription = null,
+                modifier = Modifier.size(26.dp),
+//                tint = Color.White // Set the icon color to white
+            )
+        }
+        val formattedDate = date?.format(DateTimeFormatter.ofPattern("MMMM d yyyy")) ?: "No Date"
         Text(
             text = formattedDate,
             fontSize = 20.sp,
-            color = Color.White,
+//            color = Color.White,
             modifier = Modifier.padding(4.dp)
         )
     }
@@ -95,19 +113,13 @@ fun EmotionChart() {
             fontSize = 20.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
-        // 這裡可以放置一個圖表，這裡簡單用一個Box表示
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(Color.LightGray, RoundedCornerShape(8.dp))
-        ) {
-            // 模擬的圖表
-            Text(
-                text = "這裡應該是一個圖表",
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
+        val chartEntryModel = entryModelOf(4f, 12f, 8f, 16f)
+        Chart(
+            chart = lineChart(),
+            model = chartEntryModel,
+            startAxis = rememberStartAxis(),
+            bottomAxis = rememberBottomAxis(),
+        )
     }
 }
 

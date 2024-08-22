@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +41,13 @@ fun SearchScreen(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
+            IconButton(onClick = { navController.navigateUp() }) {
+                Icon(
+                    bitmap = ImageBitmap.imageResource(id = R.drawable.back),
+                    contentDescription = null,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
             TextField(
                 value = "",
                 onValueChange = {},
@@ -52,7 +61,7 @@ fun SearchScreen(navController: NavController) {
                 modifier = Modifier
                     .weight(1f)
                     .height(56.dp) // 设置输入框的高度为 56.dp，这是 Material Design 中的标准高度
-                    .padding(20.dp, 0.dp, 0.dp, 0.dp)
+//                    .padding(20.dp, 0.dp, 0.dp, 0.dp)
             )
 
             IconButton(onClick = { /*TODO*/ }) {

@@ -16,7 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") } //文字雲新增
     }
+
 }
 
 rootProject.name = "Project"

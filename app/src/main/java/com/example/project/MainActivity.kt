@@ -24,6 +24,11 @@ import java.time.format.DateTimeFormatter
 
 val ThemeColor = Color(213, 191, 160)//0xFFD5BFA0
 val LightColor = ThemeColor.copy(alpha = 0.2f) //原0xFFE9E8E5
+val BtnColor = Color(
+    red = (ThemeColor.red * 255).toInt() + 10,
+    green = (ThemeColor.green * 255).toInt() + 10,
+    blue = (ThemeColor.blue * 255).toInt() + 10
+)
 
 val allConversationData = listOf(
     "2024.05.01.09:00:00", "2024.05.03.10:15:30", "2024.05.05.14:20:00",
@@ -102,7 +107,7 @@ fun MyApp() {
         composable("mode") { ChoosingMode(navController) }
         composable("cards") { ChoosingCards() }
         composable("owningCards") { OwningCards() }
-        composable("chatting") { Chatting() }
+        composable("chatting") { Chatting(navController) }
         composable("month/{selectedMonth}") { backStackEntry ->
             val selectedMonth = backStackEntry.arguments?.getString("selectedMonth")
             selectedMonth?.let {
@@ -135,3 +140,4 @@ fun GreetingPreview() {
         }
     }
 }
+
