@@ -70,12 +70,10 @@ fun MonthSelectionScreen(navController: NavController,allConversationData : List
             fontSize = 18.sp,
             modifier = Modifier.padding(16.dp)
         )
-
         LazyColumn {
             items(conversationCountByMonth.toList()) { (month, conversationCount) ->
                 val formattedMonth = LocalDateTime.parse("$month.01.00:00:00", DateTimeFormatter.ofPattern("yyyy.MM.dd.HH:mm:ss"))
                     .format(DateTimeFormatter.ofPattern("yyyy年 M月"))
-
                 MonthItem(
                     month = formattedMonth,
                     conversations = "$conversationCount 次對話",

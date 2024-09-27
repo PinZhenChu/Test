@@ -173,8 +173,6 @@ fun Home(navController: NavController, selectedMonth: String) {
 
                     }
                 }
-
-
             }
         }
     )

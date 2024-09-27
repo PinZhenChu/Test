@@ -60,6 +60,7 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.core.axis.AxisItemPlacer
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -250,6 +251,7 @@ fun WordSections() {
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(text = "貓咪", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+//                錄九月的時候改追星
                 Text(text = "當提及這個詞彙，通常能讓你感到快樂。")
             }
         }
@@ -264,7 +266,8 @@ fun WordSections() {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(text = "過敏", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = "作業", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+//                錄九月的時候改下雨
                 Text(text = "當提及這個詞彙，通常會讓你情緒較低落。")
             }
         }
@@ -282,7 +285,8 @@ fun Statistics() {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(text = "這個月我們進行了 12 次對話，比起上個月多了 2 次。")
+                Text(text = "這個月我們進行了 8 次對話，比起上個月多了 2 次。")
+                //錄9月的時候改9,0
             }
         }
         Card(
@@ -293,7 +297,8 @@ fun Statistics() {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(text = "這個月你蒐集了 10 張卡牌，比起上個月多了 3 張。")
+                Text(text = "這個月你蒐集了 6 張卡牌，比起上個月多了 3 張。")
+                //錄9月的時候改2,少3
             }
         }
     }
@@ -301,22 +306,33 @@ fun Statistics() {
 
 @Composable
 fun MoodChart() {
+    val xLabels = listOf(
+        "2", "5", "7", "10", "15", "19", "25", "29"
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp, vertical = 10.dp)
-//            .border(1.dp, Color.Black)
     ) {
-        val chartEntryModel = entryModelOf(4f, 12f, 8f, 16f)
+        // 假設你有 12 筆資料，並用 entryModelOf 建立圖表資料
+        val chartEntryModel = entryModelOf(4f, 9f, 5f, 7f, 6f, 3f, 7f, 6f)
+                                                            //錄9月的時候改3f, 2f, 5f, 1f, 6f, 4f, 6f, 6f
+
         Chart(
             chart = lineChart(),
             model = chartEntryModel,
-            startAxis = rememberStartAxis(),
-            bottomAxis = rememberBottomAxis(),
+            startAxis = rememberStartAxis(), // Y 軸
+            bottomAxis = rememberBottomAxis(
+                itemPlacer = AxisItemPlacer.Horizontal.default(spacing = 1), // 每筆資料顯示一個標籤
+                valueFormatter = { index, _ ->  // 加入第二個 ChartValues 參數，但不使用它
+                    xLabels.getOrNull(index.toInt()) ?: ""
+                }
+            ),
         )
-
     }
 }
+
 
 @Composable
 fun WordCloud() {
@@ -326,10 +342,10 @@ fun WordCloud() {
             .padding(horizontal = 10.dp, vertical = 10.dp)
     ) {
         val words = listOf(
-            "早安" to 2,
-            "午安" to 8,
-            "晚安" to 4,
-            "你好" to 2,
+            "下課" to 2,
+            "下雨" to 8,
+            "第一名" to 4,
+            "兔子" to 2,
             "星期六" to 5,
             "回家" to 4,
             "放假" to 5,
